@@ -377,6 +377,8 @@ Tendencias
 
 Como deseamos observar tendencias, vamos a obtener la media de sentimientos por día, usando group_by() y summarise() y asignamos los resultados a tuits_afinn_fecha
 ```{r}
+# A partir de los datos que fuimos organizando, calculamos el promedio de sentimiento por día y por candidato para ver la evolución de la imagen de cada uno en el tiempo
+
 options(dplyr.summarise.inform = FALSE)
 
 tuits_afinn_fecha <-
@@ -392,6 +394,8 @@ Ploteo de resultados
 
 Veamos nuestros resultados con ggplot()
 ```{r}
+# Luego graficamos los resultados para poder visualizar la evolución de la imagen de los candidatos en el tiempo
+
 tuits_afinn_fecha %>%
   ggplot() +
   aes(Fecha, Media, color = Candidato) +
@@ -399,13 +403,16 @@ tuits_afinn_fecha %>%
   tema_graf +
   theme(legend.position = "top")
 ```
-
+<br>
+**Vemos como Lopez Obrador tiene una tendencia de sentimiento positivo más alta que otros candidatos cerca de las elecciones. Al mismo tiempo, el candidato Jaime Rodríguez Calderón aparece en Twitter cerca del final de la campaña**
 
 Tendencia de Candidatos
 ===
 
 No nos dice mucho. Sin embargo, si separamos las líneas por candidato, usando facet_wrap(), será más fácil observar el las tendencias de los Candidatos.
 ```{r}
+# Para poder observar mejor estas evoluciones, abrimos los resultados en un gráfico por candidato
+
 tuits_afinn_fecha %>%
   ggplot() +
   aes(Fecha, Media, color = Candidato) +
@@ -433,6 +440,8 @@ LOESS
 ===
 
 ```{r}
+# Utilizando el algoritmo de regresión local LOESS podemos observar más facilmente la tendencia de la imagen de cada candidato eliminando el "ruido" que puede generar la volatilidad diaria
+
 tuits_afinn_fecha %>%
   ggplot() +
   aes(Fecha, Media, color = Candidato) +
@@ -459,6 +468,8 @@ Si separamos las lineas por candidato y mostramos los puntos a partir de los cua
 Tendencia
 ===
 ```{r}
+# Aperturamos luego el análisis para ver cada candidato en un grafico separado y poder observar mejor la tendencia que cada uno lleva
+
 tuits_afinn %>%
   ggplot() +
   aes(Fecha, Puntuacion, color = Candidato) +
@@ -468,6 +479,8 @@ tuits_afinn %>%
   tema_graf
 ```
 
+<br>
+**Podemos observar que si bien Lopez Obrador inició con imagen más negativa, hacia el final de la campaña fue subiendo. En cambio el candidato Jaime Rodríguez Calderón, no sólo comenzó tarde su actividad en Twitter sino que tuvo una tendencia muy hacia la imagen negativa. Los otros candidatos, tuvieron un comportamiento más estable y moderada**
 
 Identificación
 ===
@@ -480,6 +493,8 @@ Ajuste Lineal
 ===
 
 ```{r}
+# Aplicando una regresión lineal, podemos observar mejor la tendencia que mencionábamos previamente en cada candidato
+
 tuits_afinn_fecha %>%
   ggplot() +
   aes(Fecha, Media, color = Candidato) +
@@ -489,23 +504,23 @@ tuits_afinn_fecha %>%
   tema_graf
 ```
 
-Tomando otro caso como ejemplo, hemos encontrado el análisis de sentimiento de la campaña 2020 en Estados Unidos donde compitieron Biden y Trump. En la web con los resultados de los análisis de sentimientos llevados a cabo, tomando como base los tweets que fueron analizados vemos como las tendencias del análisis daban un sentimiento más positivo para Biden que para Trump. Luego el resultado de la elección terminó por darlo ganador a Biden
+**Tomando otro caso como ejemplo, hemos encontrado el análisis de sentimiento de la campaña 2020 en Estados Unidos donde compitieron Biden y Trump. En la web con los resultados de los análisis de sentimientos llevados a cabo, tomando como base los tweets que fueron analizados vemos como las tendencias del análisis daban un sentimiento más positivo para Biden que para Trump. Luego el resultado de la elección terminó por darlo ganador a Biden**
 
 
-Debajo podemos ver el gráfico del análisis de sentimiento para Trump y Biden en fechas próximas a la elección
+**Debajo podemos ver el gráfico del análisis de sentimiento para Trump y Biden en fechas próximas a la elección**
 
 ![](SentimentBidenVsTrump_1.png)
-El mismo análisis hecho enfocando en los días previos nos permite ver que la tendencia se mantiene
+**El mismo análisis hecho enfocando en los días previos nos permite ver que la tendencia se mantiene**
 
 ![](SentimentBidenVsTrump_2.png)
 
-Fuente:
+**Fuente:**
 
 https://webpages.csus.edu/fitzgerald/assets/2020_tweet_sentiment_aleksey.html
 
 Clarificación
 ====
- Aun podemos observar una tendencia, pero en la mayoría de los casos no es tan “clara” como parecería usando LOESS. También podemos ver cómo es que pocos datos, es posible que valores extremos cambien notablemente la forma de una línea trazada con LOESS, de manera similar a cómo cambian la pendiente de una Regresión Lineal ordinaria. Esto es osbervable con los datos de lopezobrador_.
+Aun podemos observar una tendencia, pero en la mayoría de los casos no es tan “clara” como parecería usando LOESS. También podemos ver cómo es que pocos datos, es posible que valores extremos cambien notablemente la forma de una línea trazada con LOESS, de manera similar a cómo cambian la pendiente de una Regresión Lineal ordinaria. Esto es osbervable con los datos de lopezobrador_.
 
 Para nuestros fines, LOESS es suficiente para darnos un panorama general en cuanto a la tendencia de sentimientos en los candidatos. No obstante, es importante ser cuidadosos con las interpretaciones que hagamos.
 
@@ -522,6 +537,8 @@ Media Móvil
 ===
 
 ```{r}
+# A los fines de confirmar las conclusiones del análisis ahora corremos un proceso de medias móviles para refinar los datos y poder validar las tendencias mencionadas previamente
+
 tuits_afinn_fecha %>%
   group_by(Candidato) %>%
   mutate(MediaR = rollmean(Media, k = 3, align = "right", na.pad = TRUE)) %>%
@@ -533,6 +550,8 @@ tuits_afinn_fecha %>%
   tema_graf
 ```
 
+<br>
+**Podemos observar que aplicando el método de medias móviles, también observamos la tendencia a la suba en el sentimiento positivo de Lopez Obrador hacia el final del proceso de elecciones, mientras que la imagen del resto de los candidatos mostraba una tendencia más a la baja, más allá de la volatilidad diaria**
 
 Comparación de Gráficas
 ===
@@ -550,6 +569,8 @@ Proporciones
 ===
 
 ```{r}
+# Otro análsis que podemos hacer es analizar que cantidad de palabras positivas vs negativas realizó cada candidato
+
 tuits_afinn %>%
   count(Candidato, Tipo) %>%
   group_by(Candidato) %>%
@@ -562,6 +583,8 @@ tuits_afinn %>%
   theme(legend.position = "top")
 ```
 
+<br>
+**Vemos que todos tienen una tendencia a usar palabras positivas en mayor medida que las negativas lo que puede entenderse debido a la circunsatancia en la que se están comunicando, tratando de generar confianza en el electorado**
 
 Imagen positiva y Negativa
 ===
@@ -572,6 +595,8 @@ Imagen Positiva y Negativa por Fecha
 ===
 
 ```{r}
+# Este mismo análisis pero aperturado por fecha nos permite ver los comportamientos en los días más cercanos a las elecciones
+
 tuits_afinn %>%
   group_by(Candidato, Fecha) %>%
   count(Tipo) %>%
@@ -605,6 +630,8 @@ Boxplot
 ===
 
 ```{r}
+# Otra forma de análisis es el diagrama boxplot. En el gráfico podemos ver la distribución de los tuits de cada candidato en lo que respecta a la puntuación de sentimiento
+
 tuits %>%
   ggplot() +
   aes(Candidato, Puntuacion_tuit, fill = Candidato) +
@@ -623,6 +650,8 @@ También podemos crear boxplots para ver cambios a través del tiempo, sólo ten
 Dinámica
 ===
 ```{r}
+# Sumando la variable temporal, podemos ver este mismo análisis para entender la evolución mensual de los sentimientos de los tuits
+
 tuits %>%
   mutate(Mes = factor(Mes)) %>% 
   ggplot() +
@@ -633,7 +662,8 @@ tuits %>%
   theme(legend.position = "none")
 ```
 
-
+<br>
+**Una vez más podemos ver la tendencia hacia la fecha de las elecciones de Lopez Obrador hacia una imagen más positiva**
 
 
 Usando densidades
@@ -643,6 +673,8 @@ Por último, podemos analizar las tendencias de sentimientos usando las funcione
 Densidad
 ===
 ```{r}
+# Este análisis nos permite ver la distribución de los sentimientos de cada candidato para entender mejor que tipo de puntuación de sentimiento se dieron con más frecuencia
+
 tuits %>%
   ggplot() +
   aes(Puntuacion_tuit, color = Candidato) +
@@ -657,6 +689,8 @@ Tendencias Dinámicas
 ===
 Por supuesto, también podemos observar las tendencias a través del tiempo usando facet_grid() para crear una cuadrícula de gráficas, con los candidatos en el eje x y los meses en el eje y.
 ```{r}
+# Continuando con el análisis, sumando la variable temporal, podemos ver la evolución mes a mes
+
 tuits %>%
   ggplot() +
   aes(Puntuacion_tuit, color = Candidato) +
@@ -675,3 +709,6 @@ En este artículo revisamos algunas de las estrategias principales para analizar
 En realidad, que la puntuación sea de tipo numérico es lo nos abre una amplia gama de posibilidades para analizar sentimientos usando el léxico Afinn. Con conjuntos de datos más grandes que el que usamos en este ejemplo, es incluso plausible pensar en análisis más complejos, por ejemplo, establer correlaciones y crear conglomerados.
 
 Aunque no nos adentramos al análisis de los resultados que obtuvimos con nuestros datos, algunas tendencias se hicieron evidentes rápidamente. Por ejemplo, la mayoría de los candidatos ha tendido a tuitear de manera positiva. Con un poco de conocimiento del tema, sin duda podríamos encontrar información útil e interesante.
+
+<br>
+**Vemos como este trabajo nos permitió entender mejor el funcionamiento de herramientas para el análsis de sentimiento. Adicionalmente, los datos nos brindan información interesante sobre el comportamiento de los candidatos de la elección y su interacción con las redes sociales. Vemos como esta herramienta puede ser de mucha utilidad para identificar tendencias y patrones de comportamiento que podrían dar señales sobre la probabilidad de éxito de un candidato por sobre otro**
